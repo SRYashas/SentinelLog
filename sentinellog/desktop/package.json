@@ -20,7 +20,7 @@
       "../dashboard/dist/**/*"
     ],
     "win": {
-      "icon": "build/icon.ico",
+      "icon": "icon.ico",
       "target": ["portable", "nsis", "zip"]
     },
     "mac": {
