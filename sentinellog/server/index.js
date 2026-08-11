@@ -31,6 +31,15 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// Content-Security-Policy header to satisfy Electron security standards
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'self' 'unsafe-inline' 'unsafe-eval' http://127.0.0.1:3000 http://localhost:3000; img-src 'self' data:; font-src 'self' data:;"
+  );
+  next();
+});
+
 // CORS — only allow localhost origins (for development with separate dev server)
 app.use(cors({
   origin: [
@@ -83,10 +92,10 @@ app.get('*', (req, res) => {
 // ── Start Server ───────────────────────────────────────────────────────────
 
 async function start() {
-  console.log('╔════════════════════════════════════════════╗');
-  console.log('║  SentinelLog API Server                    ║');
-  console.log('║  Offline Windows Process & Console Monitor ║');
-  console.log('╚════════════════════════════════════════════╝');
+  console.log('+--------------------------------------------+');
+  console.log('|  SentinelLog API Server                    |');
+  console.log('|  Offline Windows Process & Console Monitor |');
+  console.log('+--------------------------------------------+');
   console.log('');
 
   // Connect to MongoDB

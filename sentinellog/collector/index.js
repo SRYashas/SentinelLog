@@ -151,10 +151,10 @@ async function pollCycle() {
 // ── Main Entry Point ───────────────────────────────────────────────────────
 
 async function main() {
-  console.log('╔════════════════════════════════════════════╗');
-  console.log('║  SentinelLog Collector Service             ║');
-  console.log('║  Offline Windows Process & Console Monitor ║');
-  console.log('╚════════════════════════════════════════════╝');
+  console.log('+--------------------------------------------+');
+  console.log('|  SentinelLog Collector Service             |');
+  console.log('|  Offline Windows Process & Console Monitor |');
+  console.log('+--------------------------------------------+');
   console.log('');
 
   // Connect to MongoDB

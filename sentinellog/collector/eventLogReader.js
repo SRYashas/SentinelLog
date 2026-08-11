@@ -63,6 +63,8 @@ function buildXPathQuery(eventIds, sinceTimestamp) {
   return `*[System[${idFilter}]]`;
 }
 
+const missingChannels = new Set();
+
 /**
  * Execute wevtutil to query events from a specific channel.
  *
@@ -73,6 +75,12 @@ function buildXPathQuery(eventIds, sinceTimestamp) {
  */
 function queryEventLog(channel, query, maxEvents = 500) {
   return new Promise((resolve, reject) => {
+    // If we already know this channel isn't installed/active, return empty without querying
+    if (missingChannels.has(channel)) {
+      resolve('');
+      return;
+    }
+
     const args = [
       'qe',
       channel,
@@ -90,9 +98,13 @@ function queryEventLog(channel, query, maxEvents = 500) {
           resolve('');
           return;
         }
-        // If the channel doesn't exist yet (Sysmon not installed), don't crash
-        if (stderr && (stderr.includes('not found') || stderr.includes('The specified channel'))) {
-          console.warn(`[EventLogReader] Channel not found: ${channel}. Is Sysmon installed?`);
+        // If the channel doesn't exist yet (Sysmon not installed), don't log repeatedly
+        const errText = (stderr || error.message || '').toLowerCase();
+        if (errText.includes('not found') || errText.includes('specified channel') || error.code === 15007 || error.code === 15008) {
+          if (!missingChannels.has(channel)) {
+            missingChannels.add(channel);
+            console.log(`[EventLogReader] Channel '${channel}' is not installed or active on this system.`);
+          }
           resolve('');
           return;
         }
@@ -101,7 +113,9 @@ function queryEventLog(channel, query, maxEvents = 500) {
           resolve(stdout);
           return;
         }
-        reject(new Error(`wevtutil error for ${channel}: ${stderr || error.message}`));
+        // Mark channel missing if error indicates channel doesn't exist
+        missingChannels.add(channel);
+        resolve('');
         return;
       }
       resolve(stdout || '');
