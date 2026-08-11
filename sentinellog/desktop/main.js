@@ -75,14 +75,14 @@ async function ensureBackendRunning() {
     console.log('[Desktop] Server is already running on 127.0.0.1:3000');
   }
 
-  // Also launch collector if not running as a Windows service
-  console.log('[Desktop] Launching collector process...');
-  const collectorScript = path.join(__dirname, '..', 'collector', 'index.js');
-  collectorProcess = spawn(process.execPath, [collectorScript], {
-    cwd: path.join(__dirname, '..'),
-    env: process.env,
-    stdio: 'ignore'
-  });
+// Also launch collector if not running as a service (Windows) or background process (other platforms)
+    console.log('[Desktop] Launching collector process...');
+    const collectorScript = path.join(__dirname, '..', 'collector', 'index.js');
+    collectorProcess = spawn(process.execPath, [collectorScript], {
+      cwd: path.join(__dirname, '..'),
+      env: process.env,
+      stdio: 'ignore'
+    });
 }
 
 /**
@@ -133,71 +133,78 @@ function createMainWindow() {
   });
 }
 
-/**
- * Create system tray icon and context menu
- */
-function createSystemTray() {
-  const { nativeImage } = require('electron');
-  const iconPath = path.join(__dirname, 'icon.ico');
+  /**
+   * Create system tray icon and context menu
+   */
+  function createSystemTray() {
+    const { nativeImage } = require('electron');
+    // For non-Windows platforms, use PNG fallback
+    let iconPath = path.join(__dirname, 'icon.ico');
+    if (process.platform !== 'win32') {
+      const pngIconPath = path.join(__dirname, 'tray-icon.png');
+      if (require('fs').existsSync(pngIconPath)) {
+        iconPath = pngIconPath;
+      }
+    }
 
-  let trayIcon;
-  try {
-    trayIcon = nativeImage.createFromPath(iconPath);
-    if (trayIcon.isEmpty()) {
+    let trayIcon;
+    try {
+      trayIcon = nativeImage.createFromPath(iconPath);
+      if (trayIcon.isEmpty()) {
+        trayIcon = nativeImage.createEmpty();
+      }
+    } catch (e) {
       trayIcon = nativeImage.createEmpty();
     }
-  } catch (e) {
-    trayIcon = nativeImage.createEmpty();
-  }
 
-  try {
-    tray = new Tray(trayIcon);
-    tray.setToolTip('SentinelLog — Windows Activity Monitor');
+    try {
+      tray = new Tray(trayIcon);
+      tray.setToolTip('SentinelLog — Activity Monitor');
 
-    const contextMenu = Menu.buildFromTemplate([
-      {
-        label: 'Open SentinelLog Window',
-        click: () => {
-          if (mainWindow) {
+      const contextMenu = Menu.buildFromTemplate([
+        {
+          label: 'Open SentinelLog Window',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.show();
+              mainWindow.focus();
+            }
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Open in Browser (http://127.0.0.1:3000)',
+          click: () => shell.openExternal(SERVER_URL)
+        },
+        { type: 'separator' },
+        {
+          label: 'Exit SentinelLog',
+          click: () => {
+            app.isQuitting = true;
+            if (serverProcess) serverProcess.kill();
+            if (collectorProcess) collectorProcess.kill();
+            app.quit();
+          }
+        }
+      ]);
+
+      tray.setContextMenu(contextMenu);
+
+      // Double click tray icon toggles window visibility
+      tray.on('double-click', () => {
+        if (mainWindow) {
+          if (mainWindow.isVisible()) {
+            mainWindow.hide();
+          } else {
             mainWindow.show();
             mainWindow.focus();
           }
         }
-      },
-      { type: 'separator' },
-      {
-        label: 'Open in Browser (http://127.0.0.1:3000)',
-        click: () => shell.openExternal(SERVER_URL)
-      },
-      { type: 'separator' },
-      {
-        label: 'Exit SentinelLog',
-        click: () => {
-          app.isQuitting = true;
-          if (serverProcess) serverProcess.kill();
-          if (collectorProcess) collectorProcess.kill();
-          app.quit();
-        }
-      }
-    ]);
-
-    tray.setContextMenu(contextMenu);
-
-    // Double click tray icon toggles window visibility
-    tray.on('double-click', () => {
-      if (mainWindow) {
-        if (mainWindow.isVisible()) {
-          mainWindow.hide();
-        } else {
-          mainWindow.show();
-          mainWindow.focus();
-        }
-      }
-    });
-  } catch (err) {
-    console.warn('[Desktop] System Tray could not be created:', err.message);
+      });
+    } catch (err) {
+      console.warn('[Desktop] System Tray could not be created:', err.message);
+    }
   }
-}
 
 // App lifecycle
 app.whenReady().then(async () => {
