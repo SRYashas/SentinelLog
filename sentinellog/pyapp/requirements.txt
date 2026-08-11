@@ -1,0 +1,5 @@
+PyQt6>=6.7.0
+python-evtx>=0.7.4
+pandas>=2.2.0
+pyqtgraph>=0.13.7
+lxml>=5.2.0

@@ -1,0 +1,16 @@
+{
+  "name": "sentinellog-server",
+  "version": "1.0.0",
+  "description": "SentinelLog — Express API Backend (localhost-only)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "mongoose": "^8.5.0",
+    "cors": "^2.8.5"
+  },
+  "private": true
+}

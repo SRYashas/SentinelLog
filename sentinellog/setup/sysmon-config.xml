@@ -1,0 +1,44 @@
+<!--
+  SentinelLog — Sysmon Configuration
+  ===================================
+  This config enables comprehensive process creation logging (Event ID 1).
+  All process creation events are captured with full command line arguments,
+  parent process info, user context, and SHA256 hashes.
+
+  Install:  Sysmon64.exe -accepteula -i sysmon-config.xml
+  Update:   Sysmon64.exe -c sysmon-config.xml
+  Uninstall: Sysmon64.exe -u
+
+  WARNING: Logging ALL process creation events generates high log volume.
+  This is intentional for v1 — capture everything, refine later.
+-->
+<Sysmon schemaversion="4.90">
+
+  <!-- Only compute SHA256 hashes to keep overhead low -->
+  <HashAlgorithms>SHA256</HashAlgorithms>
+
+  <EventFiltering>
+
+    <!--
+      ProcessCreate (Event ID 1)
+      ==========================
+      Using onmatch="exclude" with an empty filter block means:
+      "exclude nothing" → capture ALL process creation events.
+
+      Each event includes:
+        - Image (process path)
+        - CommandLine (full command line)
+        - ParentImage (parent process path)
+        - ParentCommandLine (parent's full command line)
+        - User (account that started the process)
+        - ProcessId / ParentProcessId
+        - Hashes (SHA256)
+        - UtcTime (timestamp)
+    -->
+    <ProcessCreate onmatch="exclude">
+      <!-- No exclusions — capture everything for v1 -->
+    </ProcessCreate>
+
+  </EventFiltering>
+
+</Sysmon>

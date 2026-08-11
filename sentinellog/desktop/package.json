@@ -1,0 +1,33 @@
+{
+  "name": "sentinellog-desktop",
+  "version": "1.0.0",
+  "description": "SentinelLog — Native Windows Desktop App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.sentinellog.desktop",
+    "productName": "SentinelLog",
+    "directories": {
+      "output": "../dist-exe"
+    },
+    "files": [
+      "**/*",
+      "../server/**/*",
+      "../collector/**/*",
+      "../dashboard/dist/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": ["portable"]
+    }
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3"
+  },
+  "private": true
+}

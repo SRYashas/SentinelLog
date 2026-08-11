@@ -1,0 +1,15 @@
+{
+  "name": "sentinellog-workspace",
+  "version": "1.0.0",
+  "description": "SentinelLog Workspace Runner",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix sentinellog start",
+    "collector": "npm --prefix sentinellog run collector",
+    "app": "npm --prefix sentinellog run app",
+    "exe": "npm --prefix sentinellog run exe",
+    "build": "npm --prefix sentinellog run build",
+    "install-service": "npm --prefix sentinellog run install-service",
+    "uninstall-service": "npm --prefix sentinellog run uninstall-service"
+  }
+}
