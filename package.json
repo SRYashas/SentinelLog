@@ -9,6 +9,7 @@
     "app": "npm --prefix sentinellog run app",
     "exe": "npm --prefix sentinellog run exe",
     "build": "npm --prefix sentinellog run build",
+    "build-all": "npm --prefix sentinellog/desktop run dist",
     "install-service": "npm --prefix sentinellog run install-service",
     "uninstall-service": "npm --prefix sentinellog run uninstall-service"
   }

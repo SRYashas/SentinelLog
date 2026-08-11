@@ -10,6 +10,7 @@
     "collector": "npm --prefix collector start",
     "app": "npm --prefix desktop start",
     "exe": "npm --prefix desktop run dist",
+    "build-all": "npm --prefix desktop run dist",
     "install-service": "npm --prefix collector run install-service",
     "uninstall-service": "npm --prefix collector run uninstall-service"
   },
